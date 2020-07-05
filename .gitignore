@@ -1,0 +1,4 @@
+mr_*
+test.txt
+*.out
+.vscode/
