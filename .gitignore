@@ -1,4 +1,6 @@
 mr_*
 test.txt
 *.out
+*.o
+main
 .vscode/

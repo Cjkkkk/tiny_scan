@@ -5,6 +5,10 @@
 #include <memory>
 #include <string> 
 #include <limits>
+#include <chrono>
+#include "./utils.hpp"
+
+typedef std::chrono::high_resolution_clock Clock;
 
 class TaskConfig {
 public:
@@ -13,26 +17,6 @@ public:
     const int reduce_task_num;
     const int buffer_size;
 };
-
-int GetParitionSize(std::ifstream& partion) {
-    std::streampos begin,end;
-    begin = partion.tellg();
-    partion.seekg (0, std::ios::end);
-    end = partion.tellg();
-    partion.seekg (0, std::ios::beg);
-    return end - begin; 
-}
-
-int GetHash (std::string& word)
-{
-    int seed = 131; 
-    unsigned long hash = 0;
-    for(int i = 0; i < word.length(); i++)
-    {
-        hash = (hash * seed) + word[i];
-    }
-    return hash;
-}
 
 void MapStage(TaskConfig& config, std::ifstream& input_file) {
     auto buffer = std::unique_ptr<char> (new char [config.buffer_size]);
@@ -94,9 +78,9 @@ void ReduceStage(TaskConfig& config) {
         while(end_pos != std::string::npos) {
             auto line = str_buf.substr(start_pos, end_pos - start_pos);
             auto blank_pos = line.find(" ");
-            if (blank_pos == std::string::npos) {
-                std::cout << "err: no blank found in " << line << " " << i << "\n";
-            }
+            // if (blank_pos == std::string::npos) {
+            //     std::cout << "err: no blank found in " << line << " " << i << "\n";
+            // }
             auto key = line.substr(0, blank_pos);
             std::string::size_type sz;
             auto value = std::stoi(line.substr(blank_pos + 1, line.length() - blank_pos - 1), &sz);
@@ -127,8 +111,13 @@ void ReduceStage(TaskConfig& config) {
 int main(int argc, char** argv) {
     TaskConfig config(5, 5, 100000);
     std::ifstream input_file("test.txt", std::ifstream::in);
+    auto t1 = Clock::now();
     MapStage(config, input_file);
     ReduceStage(config);
+    auto t2 = Clock::now();
+    std::cout << "Time: " 
+              << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() * 1e-9
+              << " seconds" << std::endl;
     input_file.close();
     return 0;
 }
