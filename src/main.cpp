@@ -7,6 +7,7 @@
 #include <limits>
 #include <chrono>
 #include "./utils.hpp"
+#include <thread>
 
 typedef std::chrono::high_resolution_clock Clock;
 
@@ -109,8 +110,12 @@ void ReduceStage(TaskConfig& config) {
 
 
 int main(int argc, char** argv) {
+    if ( argc != 2) {
+        std::cerr << "Usage: scan [filename]\n";
+        exit(0);
+    }
     TaskConfig config(5, 5, 100000);
-    std::ifstream input_file("test.txt", std::ifstream::in);
+    std::ifstream input_file(argv[1], std::ifstream::in);
     auto t1 = Clock::now();
     MapStage(config, input_file);
     ReduceStage(config);

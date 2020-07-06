@@ -3,4 +3,6 @@ test.txt
 *.out
 *.o
 main
+
 .vscode/
+build/

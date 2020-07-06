@@ -5,3 +5,11 @@
 2. 只允许扫一遍原文件
 3. 尽量少的 IO
 4. 内存限制 16G
+
+
+## Build
+```
+mkdir build
+make
+./build/main [filename]
+```

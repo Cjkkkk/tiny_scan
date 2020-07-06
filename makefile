@@ -1,16 +1,17 @@
+CC=g++
 std=c++11
-cxx=g++
-objects=main.o utils.o
+src=./src
+build=./build
 
-main: $(objects)
-	$(cxx) -std=$(std) $^ -o $@
+scan: main.o utils.o
+	$(CC) -std=$(std) $(build)/main.o $(build)/utils.o -o $(build)/$@
 
-main.o: main.cpp
-	$(cxx) -std=$(std) -c $< -o $@
+main.o: $(src)/main.cpp
+	$(CC) -std=$(std) -c $< -o $(build)/$@
 
-utils.o: utils.cpp utils.hpp
-	$(cxx) -std=$(std) -c $< -o $@
+utils.o: $(src)/utils.cpp $(src)/utils.hpp
+	$(CC) -std=$(std) -c $< -o $(build)/$@
 
 .PHONY: clean
 clean:
-	rm *.o *.out
+	rm $(build)/*.o $(build)/*.out
