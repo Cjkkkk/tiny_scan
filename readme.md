@@ -11,5 +11,5 @@
 ```
 mkdir build
 make
-./build/main [filename]
+./build/scan [filename]
 ```
