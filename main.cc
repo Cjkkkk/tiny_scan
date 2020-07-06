@@ -14,7 +14,7 @@ public:
     const int buffer_size;
 };
 
-int get_parition_size(std::ifstream& partion) {
+int GetParitionSize(std::ifstream& partion) {
     std::streampos begin,end;
     begin = partion.tellg();
     partion.seekg (0, std::ios::end);
@@ -23,7 +23,7 @@ int get_parition_size(std::ifstream& partion) {
     return end - begin; 
 }
 
-int get_hash (std::string& word)
+int GetHash (std::string& word)
 {
     int seed = 131; 
     unsigned long hash = 0;
@@ -37,8 +37,7 @@ int get_hash (std::string& word)
 void MapStage(TaskConfig& config, std::ifstream& input_file) {
     auto buffer = std::unique_ptr<char> (new char [config.buffer_size]);
     std::vector<std::ofstream> partions;
-    int prefix = 0;
-
+    
     for ( int i = 0 ; i < config.reduce_task_num ; i ++ ) {
         partions.push_back(std::ofstream("mr_" + std::to_string(i), std::ofstream::out));
     }
@@ -48,7 +47,7 @@ void MapStage(TaskConfig& config, std::ifstream& input_file) {
         input_file.read (buffer.get(), config.buffer_size);
         std::string str_buf(buffer.get());
         auto start_pos = 0;
-        auto end_pos = str_buf.find(" ", start_pos);
+        auto end_pos = str_buf.find("\n", start_pos);
         while(end_pos != std::string::npos) {
             auto key = str_buf.substr(start_pos, end_pos - start_pos);
             auto iter = dict.find(key);
@@ -58,17 +57,15 @@ void MapStage(TaskConfig& config, std::ifstream& input_file) {
                 iter->second = -1;
             }
             start_pos = end_pos + 1;
-            end_pos = str_buf.find(" ", start_pos);
+            end_pos = str_buf.find("\n", start_pos);
         }
 
         for (std::pair<std::string, int32_t> element : dict) {
             if (element.second != -1 ) {
-                int index = get_hash(element.first) % config.reduce_task_num;
-                std::cout << index << " " << element.first << " " << element.second << "\n";
-                partions[index] << element.first << "\n";
+                int index = GetHash(element.first) % config.reduce_task_num;
+                partions[index] << element.first << " " << element.second << "\n";
             }
         }
-        std::cout << "\n\n";
 
     }
     for ( int i = 0 ; i < config.reduce_task_num ; i ++ ) {
@@ -86,19 +83,19 @@ void ReduceStage(TaskConfig& config) {
     }
 
     for ( int i = 0 ; i < config.reduce_task_num; i ++ ) {
-        int size = get_parition_size(partions[i]);
+        int size = GetParitionSize(partions[i]);
         auto buffer = std::unique_ptr<char> (new char [size]);
         partions[i].read(buffer.get(), size);
         std::string str_buf(buffer.get());
         std::unordered_map<std::string, int32_t> dict;
 
         auto start_pos = 0;
-        auto end_pos = str_buf.find("\r\n", start_pos);
+        auto end_pos = str_buf.find("\n", start_pos);
         while(end_pos != std::string::npos) {
             auto line = str_buf.substr(start_pos, end_pos - start_pos);
             auto blank_pos = line.find(" ");
             if (blank_pos == std::string::npos) {
-                std::cout << "err: no blank found in " << line << "\n";
+                std::cout << "err: no blank found in " << line << " " << i << "\n";
             }
             auto key = line.substr(0, blank_pos);
             std::string::size_type sz;
@@ -109,8 +106,8 @@ void ReduceStage(TaskConfig& config) {
             } else {
                 iter->second = -1;
             }
-            start_pos = end_pos + 2;
-            end_pos = str_buf.find("\r\n", start_pos);
+            start_pos = end_pos + 1;
+            end_pos = str_buf.find("\n", start_pos);
         }
 
         for (std::pair<std::string, int32_t> element : dict) {
@@ -120,7 +117,7 @@ void ReduceStage(TaskConfig& config) {
             }
         }
     }   
-
+    std::cout << min_pos << " " << word << "\n";
     for ( int i = 0 ; i < config.reduce_task_num ; i ++ ) {
         partions[i].close();
     }
@@ -128,7 +125,7 @@ void ReduceStage(TaskConfig& config) {
 
 
 int main(int argc, char** argv) {
-    TaskConfig config(5, 5, 10);
+    TaskConfig config(5, 5, 100000);
     std::ifstream input_file("test.txt", std::ifstream::in);
     MapStage(config, input_file);
     ReduceStage(config);
