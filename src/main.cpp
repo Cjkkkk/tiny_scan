@@ -110,7 +110,8 @@ void ReduceStage(TaskConfig& config, uint64_t& min_pos, std::string& word) {
                 try{
                     seq = std::stoull(line.substr(blank_pos + 1, line.length() - blank_pos - 1), &sz);
                 }catch(std::exception& e) {
-                    std::cout << line << " " << line.substr(blank_pos + 1, line.length() - blank_pos - 1) << "\n";
+                    std::cout << e.what() << "\n";
+                    std::cout << "error when parse: " << line << "\n";
                 }
                 auto iter = dict.find(word);
                 if ( iter == dict.end() ) {
