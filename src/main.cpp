@@ -37,7 +37,6 @@ int main(int argc, char** argv) {
         exit(0);
     }
 
-    uint64_t min_pos = max_seq;
     std::string word;
 
     std::cout << "---------------     Job Config     ---------------\n"
