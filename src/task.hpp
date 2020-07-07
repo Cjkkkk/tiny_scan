@@ -15,7 +15,17 @@ public:
     const uint32_t buffer_size;
 };
 
+void MapTask(TaskConfig& config, 
+    std::ifstream& input_file, 
+    std::vector<std::vector<std::ofstream>>& partions, 
+    int i);
+void ReduceTask(TaskConfig& config, 
+    std::vector<std::vector<std::ifstream>>& partions,
+    uint32_t& min_slice,
+    uint64_t& min_pos,
+    std::string& word,
+    int i);
 void MapStage(TaskConfig& config, std::ifstream& input_file);
-void ReduceStage(TaskConfig& config, uint64_t& min_pos, std::string& word);
+void ReduceStage(TaskConfig& config, std::string& word);
 
 #endif

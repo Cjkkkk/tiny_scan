@@ -52,12 +52,12 @@ int main(int argc, char** argv) {
     
     std::cout << "--------------- Stage 3: Reduce Stage --------------\n";
     t1 = Clock::now();
-    ReduceStage(config, min_pos, word);
+    ReduceStage(config, word);
     t2 = Clock::now();
     std::cout << "Redice Time: " 
               << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() * 1e-9
               << " seconds" << std::endl;
-    std::cout << "result: " << min_pos << " " << word << "\n";
+    std::cout << "result: " << " " << word << "\n";
     input_file.close();
     return 0; 
 }
