@@ -112,8 +112,7 @@ void ReduceTask(TaskConfig& config,
             try{
                 seq = std::stoull(line.substr(blank_pos + 1, line.length() - blank_pos - 1), &sz);
             }catch(std::exception& e) {
-                std::cout << e.what() << "\n";
-                std::cout << "error when parse: " << line << "\n";
+                std::cerr << "error when parse: " << line << "\n";
             }
             auto iter = dict.find(word);
             if ( iter == dict.end() ) {

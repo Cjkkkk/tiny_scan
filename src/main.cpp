@@ -20,10 +20,23 @@ int main(int argc, char** argv) {
     }
 
     std::ifstream input_file(argv[1], std::ifstream::in);
-    uint32_t map_task_num = std::stoi(argv[2]);
-    uint32_t reduce_task_num = std::stoi(argv[3]);
-    uint64_t buffer_size = std::stoi(argv[4]);
-    
+    if (!input_file.is_open()) {
+        std::cerr << "Error opening file " + std::string(argv[1]) << "\n";
+        exit(0);
+    }
+
+    uint32_t map_task_num;
+    uint32_t reduce_task_num;
+    uint64_t buffer_size;
+    try{
+        map_task_num = std::stoul(argv[2]);
+        reduce_task_num = std::stoul(argv[3]);
+        buffer_size = std::stoul(argv[4]);
+    } catch(std::exception& e) {
+        std::cerr << "Error when parsing command line arguments\n";
+        exit(0);
+    }
+
     uint64_t min_pos = max_seq;
     std::string word;
 
