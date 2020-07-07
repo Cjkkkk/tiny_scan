@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include <cmath>
-#include "./utils.hpp"
+#include "utils.hpp"
 
 int GetFileSize(std::ifstream& file) {
     std::streampos begin,end;

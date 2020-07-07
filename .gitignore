@@ -1,5 +1,5 @@
 mr_*
-*.txt
+test_*.txt
 *.out
 *.o
 
