@@ -14,4 +14,4 @@ utils.o: $(src)/utils.cpp $(src)/utils.hpp
 
 .PHONY: clean
 clean:
-	rm $(build)/*.o $(build)/*.out
+	rm $(build)/* mr_*

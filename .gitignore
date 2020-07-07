@@ -1,8 +1,7 @@
 mr_*
-test.txt
+*.txt
 *.out
 *.o
-main
 
 .vscode/
 build/

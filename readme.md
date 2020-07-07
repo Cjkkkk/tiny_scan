@@ -11,5 +11,7 @@
 ```
 mkdir build
 make
-./build/scan [filename]
+# generate permutation of alphabet from (1, length)
+python tools/generate_data.py [length] [output]
+./build/scan [filename] [map_task_num] [reduce_task_num] [buffer_size] 
 ```
