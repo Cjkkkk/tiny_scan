@@ -67,8 +67,10 @@ void MapStage(TaskConfig& config, std::ifstream& input_file) {
         }
         
         for (std::pair<std::string, uint64_t> element : dict) {
-            int index = std::abs(GetHash(element.first)) % config.reduce_task_num;
-            partions[i][index] << element.first << " " << element.second << "\n";
+            if ( element.second != max_seq ) {
+                int index = std::abs(GetHash(element.first)) % config.reduce_task_num;
+                partions[i][index] << element.first << " " << element.second << "\n";
+            }
         }
     }
 
