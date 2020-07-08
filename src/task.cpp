@@ -78,6 +78,7 @@ void MapStage(TaskConfig& config, std::ifstream& input_file) {
     OpenSlice(config, slice);
 
     for ( int i = 0 ; i < config.map_task_num; i ++ ) {
+        // could run parallel here
         MapTask(config, input_file, slice, i);
     }
 
@@ -147,6 +148,7 @@ void ReduceStage(TaskConfig& config, std::string& word) {
     OpenSlice(config, slice);
 
     for ( int i = 0 ; i < config.reduce_task_num; i ++ ) {
+        // could run parallel here
         ReduceTask(config, slice, min_slice_vec[i], min_pos_vec[i], word_vec[i],i);
     }
 
