@@ -35,10 +35,17 @@ mr_0_2 + mr_1_2 => e : 5, f: 6 => e : 5
 阶段1需要注意的是分割的时候不能简单的把每一份小文件的大小设定为 total_size / n (这里n为小文件数目)。考虑这样的情况: 'a\nba\n'直接分割成2份会生成'a\nb'和'a\n'，应该分为'a\n'和'ba\n'。
 
 ## Build
-```
+```shell
 mkdir build
 make
 # generate permutation of alphabet from (1, length)
 python tools/generate_data.py [length] [output]
 ./build/scan [filename] [map_task_num] [reduce_task_num] [buffer_size] 
+```
+
+## Test
+```shell
+mkdir build
+make test
+./build/test
 ```
