@@ -9,19 +9,19 @@
 #include "task.hpp"
 
 template <typename T>
-void OpenPartions(TaskConfig& config, std::vector<std::vector<T>>& partions) {
+void OpenSlice(TaskConfig& config, std::vector<std::vector<T>>& slice) {
     for ( int i = 0 ; i < config.map_task_num ; i ++ ) {
         for ( int j = 0 ; j < config.reduce_task_num ; j ++ ) {
-            partions[i].push_back(T("mr_" + std::to_string(i) + "_" + std::to_string(j)));
+            slice[i].push_back(T("mr_" + std::to_string(i) + "_" + std::to_string(j)));
         }
     }
 }
 
 template <typename T>
-void ClosePartions(TaskConfig& config, std::vector<std::vector<T>>& partions) {
+void CloseSlice(TaskConfig& config, std::vector<std::vector<T>>& slice) {
     for ( int i = 0 ; i < config.map_task_num ; i ++ ) {
         for ( int j = 0 ; j < config.reduce_task_num ; j ++ ) {
-            partions[i][j].close();
+            slice[i][j].close();
         }
     }
 }
@@ -29,7 +29,7 @@ void ClosePartions(TaskConfig& config, std::vector<std::vector<T>>& partions) {
 
 void MapTask(TaskConfig& config, 
     std::ifstream& input_file,
-    std::vector<std::vector<std::ofstream>>& partions,
+    std::vector<std::vector<std::ofstream>>& slice,
     int i
 ) {
     std::unordered_map<std::string, uint64_t> dict;
@@ -67,25 +67,25 @@ void MapTask(TaskConfig& config,
     for (std::pair<std::string, uint64_t> element : dict) {
         if ( element.second != max_seq ) {
             int index = std::abs(GetHash(element.first)) % config.reduce_task_num;
-            partions[i][index] << element.first << " " << element.second << "\n";
+            slice[i][index] << element.first << " " << element.second << "\n";
         }
     }
 }
 
 void MapStage(TaskConfig& config, std::ifstream& input_file) {
-    std::vector<std::vector<std::ofstream>> partions(config.map_task_num);
+    std::vector<std::vector<std::ofstream>> slice(config.map_task_num);
     
-    OpenPartions(config, partions);
+    OpenSlice(config, slice);
 
     for ( int i = 0 ; i < config.map_task_num; i ++ ) {
-        MapTask(config, input_file, partions, i);
+        MapTask(config, input_file, slice, i);
     }
 
-    ClosePartions(config, partions);
+    CloseSlice(config, slice);
 }
 
 void ReduceTask(TaskConfig& config, 
-    std::vector<std::vector<std::ifstream>>& partions,
+    std::vector<std::vector<std::ifstream>>& slice,
     uint32_t& min_slice,
     uint64_t& min_pos,
     std::string& word,
@@ -95,10 +95,10 @@ void ReduceTask(TaskConfig& config,
     min_pos = max_seq;
     std::unordered_map<std::string, std::pair<uint32_t, uint64_t>> dict;
     for ( int j = 0 ; j < config.map_task_num; j ++ ) {
-        int size = GetFileSize(partions[j][i]);
+        int size = GetFileSize(slice[j][i]);
         auto buffer = std::unique_ptr<char> (new char [size]);
-        partions[j][i].read(buffer.get(), size);
-        std::streamsize bytes = partions[j][i].gcount();
+        slice[j][i].read(buffer.get(), size);
+        std::streamsize bytes = slice[j][i].gcount();
         std::string str_buf(buffer.get(), bytes);
         
         auto start_pos = 0;
@@ -137,17 +137,17 @@ void ReduceTask(TaskConfig& config,
 
 
 void ReduceStage(TaskConfig& config, std::string& word) {
-    std::vector<std::vector<std::ifstream>> partions(config.map_task_num);
+    std::vector<std::vector<std::ifstream>> slice(config.map_task_num);
     std::vector<uint32_t> min_slice_vec(config.reduce_task_num);
     std::vector<uint64_t> min_pos_vec(config.reduce_task_num);
     std::vector<std::string> word_vec(config.reduce_task_num);
     uint32_t min_slice = config.map_task_num;
     uint64_t min_pos = max_seq;
 
-    OpenPartions(config, partions);
+    OpenSlice(config, slice);
 
     for ( int i = 0 ; i < config.reduce_task_num; i ++ ) {
-        ReduceTask(config, partions, min_slice_vec[i], min_pos_vec[i], word_vec[i],i);
+        ReduceTask(config, slice, min_slice_vec[i], min_pos_vec[i], word_vec[i],i);
     }
 
     for ( int i = 0 ; i < config.reduce_task_num; i ++ ) {
@@ -158,5 +158,5 @@ void ReduceStage(TaskConfig& config, std::string& word) {
         } 
     }
 
-    ClosePartions(config, partions);
+    CloseSlice(config, slice);
 }
